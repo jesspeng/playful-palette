@@ -1,0 +1,25 @@
+{
+  "name": "playful-palette",
+  "version": "1.0.0",
+  "description": "Reimplementation of Adobe's Playful Palette: An Interactive Parametric Color Mixer for Artists ",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jesspeng/playful-palette.git"
+  },
+  "author": "Jessica Peng (Original authors: Maria Shugrina, Jingwan Lu, and Stephen Diverdi)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jesspeng/playful-palette/issues"
+  },
+  "homepage": "https://github.com/jesspeng/playful-palette#readme",
+  "dependencies": {
+    "get-canvas-pixel-color": "^1.0.0"
+  }
+}

@@ -1,0 +1,318 @@
+body {
+	background-color: rgba(0,0,0,0.05);
+	margin: 0;
+}
+
+p {
+	display: inline-block;
+	font-family: 'Lato';
+	margin-left: 10px;
+}
+
+#myCanvas {
+	/* float: left; */
+	background-color: white;
+	/* display: inline-block; */
+	height: 100%;
+	width: 100%;
+	float: right;
+	cursor: crosshair;
+}
+
+#mixing {
+	height: 100%;
+	width: 100%;
+	margin-top: 0px;
+	cursor: crosshair;
+	border: 2px solid #c9c9c9;
+	border-radius: 50%;
+}
+
+button:focus {
+	outline: 0;
+}
+
+#swatches {
+	width: 43%;
+	padding-left: 1px;
+	display: none;
+}
+
+#custom-color {
+	padding: 0px;
+}
+
+#customColorImg {
+	width: 30px;
+	height: 30px;
+	transform: scale(-1, -1);
+}
+
+#history {
+	width: 40px;
+	height: 300px;
+	top: 460px;
+	left: 0px;
+	z-index: 11;
+	position: fixed;
+	/* background-color: red; */
+}
+
+#color {
+	display: inline-block;
+	margin-left: 45px;
+}
+
+#brush {
+	top: 60px;
+	left: 30px;
+	z-index: 10;
+	position: absolute;
+	width: 40px;
+	background-color: rgba(0,0,0,0.1);
+
+}
+
+#mydiv {
+  position: absolute;
+  z-index: 9;
+  /* border: 3px 1px 3px 1px solid rgba(0,0,0,0.2); */
+  text-align: center;
+	width: 25%;
+	height: 50%;
+	background-color: rgba(255,255,255,0.5);
+	border-radius: 50%;
+	border:5px solid rgba(255,255,255,0.2);
+	left: 75px;
+	top: 300px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 3px;
+    height: 150px;
+    /* padding: 0 5px; */
+		border-radius: 5px;
+	  background: #d3d3d3;
+	  outline: none;
+	  opacity: 0.7;
+	  -webkit-transition: .1s;
+	  transition: opacity .1s;
+
+		top: 100px;
+		left: 20px;
+		z-index: 12;
+		position: fixed;
+		cursor: pointer;
+}
+
+#currentSwatch {
+	background-color: black;
+	margin-top: 5px;
+	cursor: default;
+}
+
+.jscolor {
+	top: 260px;
+	left: 20px;
+	width: 30px;
+	height: 25px;
+	z-index: 12;
+	position: fixed;
+	cursor: pointer;
+	border-style: none;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+#draw {
+	float: right;
+	background-color: white;
+	width: 48%;
+	height: 100%;
+	z-index: 1000;
+	margin-top: -525px;
+}
+
+#dropper {
+	left: -12px;
+	top: 170px;
+	border-radius: 50%;
+}
+
+#drawingButtons {
+	top: 300px;
+	left: 15px;
+	position: fixed;
+	z-index: 10;
+	background-color: white;
+	border: 1px solid rgba(0,0,0,0.4);
+	border-radius: 10%;
+	width: 40px;
+	height: 150px;
+}
+
+.btn {
+	z-index: 10;
+	position: absolute;
+	cursor: pointer;
+	border-style: none;
+	background-color: #bcbcbc;
+}
+
+#changeColor {
+	left: 30px;
+	top: 275px;
+	border-radius: 20%;
+}
+
+#cleanPalette {
+	left: 160px;
+	top: 335px;
+	border-radius: 20%;
+}
+
+#brush-icon {
+	top: 320px;
+	left: 145px;
+	z-index: 10;
+	position: absolute;
+	width:20px;
+	height: 20px;
+}
+
+#brush-container {
+	display: inline-block;
+}
+
+#btn-icon {
+	width: 20px;
+	height: 20px;
+}
+
+#brush-size {
+	height: 20px;
+	width: 24px;
+	background-color: black;
+	top: 320px;
+	left: 400px;
+  z-index: 10;
+	position: absolute;
+}
+
+.swatch {
+	padding: 10px;
+	border-style: none;
+}
+
+.btn {
+	padding: 5px;
+	display: inline-block;
+	float: left;
+}
+
+.btn-drawing {
+	/* left: 20px; */
+	padding: 5px;
+	margin: 3px;
+	z-index: 10;
+	/* position: fixed; */
+	cursor: pointer;
+	border-style: none;
+	background-color: white;
+	border-radius: 10%;
+}
+
+#red-swatch {
+	background-color: red;
+}
+
+#green-swatch {
+	background-color: #33f907;
+}
+
+#blue-swatch {
+	background-color: #00bfff;
+}
+
+#darkblue-swatch {
+	background-color: #0046d3;
+}
+
+#magenta-swatch {
+	background-color: #f402c8;
+}
+
+#orange-swatch {
+	background-color: #ff9000;
+}
+
+#lavender-swatch {
+	background-color: rgb(205, 132, 224);
+}
+
+#forestgreen-swatch {
+	background-color: #145905;
+}
+
+#grey-swatch {
+	background-color: #777777;
+}
+
+#brown-swatch {
+	background-color: #7c4a09;
+}
+
+#yellow-swatch {
+	background-color: yellow;
+}
+
+#purple-swatch {
+	background-color: #8614c9;
+}
+
+#tan-swatch {
+	background-color: #ceb18e;
+}
+
+#black-swatch {
+	background-color: black;
+}
+
+#white-swatch {
+	background-color: white;
+}
+
+#mydivheader {
+  padding: 5px;
+  cursor: grab;
+  z-index: 12;
+	background-color: #bcbcbc;
+	position: absolute;
+	top: 55px;
+	left: 25px;
+	border-radius: 20%;
+}
+
+/* #color-wheel {
+	width: 100%;
+	height: 100%;
+} */
