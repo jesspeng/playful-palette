@@ -658,28 +658,28 @@ function changePixelColors(dish) {
           }
 
         } else {
-        //   console.log("changing parent dish");
+          console.log("changing parent dish");
         // for (var l = 0; l < parentDishes.length; l++) {
-        //   console.log("looping through parent dishes");
-        //   console.log("stroke dish id: " + stroke.dish_id);
-        //   console.log("parent dish id: " + parentDishes[l].id);
-        //   if (stroke.dish_id !== null && stroke.dish_id === parentDishes[l].id) {
-        //     console.log("changing parent dish");
-        //
-        //     if (stroke.swatchCoord_x === null) {
-        //       console.log("just using orig color");
-        //       strokeCopy.color = parentDishes[l].blobs[0].color;
-        //     } else {
-        //       for (var m = 0; m < parentDishes[l].swatchCoords_x.length; m++) {
-        //         if (stroke.swatchCoord_x === parentDishes[l].swatchCoords_x[m]) {
-        //           strokeCopy.color = parentDishes[l].swatches[m];
-        //           console.log("strokecolor: ");
-        //           console.log(strokeCopy.color);
-        //           break;
-        //         }
-        //       }
-        //     }
-        //   }
+          console.log("looping through parent dishes");
+          console.log("stroke dish id: " + stroke.dish_id);
+          console.log("parent dish id: " + dish.parent.id);
+          if (stroke.dish_id !== null && stroke.dish_id === dish.parent.id) {
+            console.log("changing parent dish");
+
+            if (stroke.swatchCoord_x === null) {
+              console.log("just using orig color");
+              strokeCopy.color = dish.parent.blobs[0].color;
+            } else {
+              for (var m = 0; m < dish.parent.swatchCoords_x.length; m++) {
+                if (stroke.swatchCoord_x === dish.parent.swatchCoords_x[m]) {
+                  strokeCopy.color = dish.parent.swatches[m];
+                  console.log("strokecolor: ");
+                  console.log(strokeCopy.color);
+                  break;
+                }
+              }
+            }
+          }
         // }
       }
 
@@ -1234,6 +1234,17 @@ var Loader = (function (modules) { // the webpack bootstrap
                   }
                   var curr_dish = dish;
                   console.log(curr_dish.parent);
+                  for (var i = 0; i < dish.parent.swatchCoords_x.length; i++) {
+                       var x = dish.parent.swatchCoords_x[i];
+                       var y = dish.parent.swatchCoords_y[i];
+                       var pixels = new Uint8Array(4);
+                       gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
+                       if (typeof dish.parent.swatches[i] !== 'undefined') {
+                         dish.parent.swatches[i].r = pixels[0];
+                         dish.parent.swatches[i].g = pixels[1];
+                         dish.parent.swatches[i].b = pixels[2];
+                       }
+                     }
                   // while (curr_dish.parent !== null) {
                   //   var parentDish = curr_dish.parent;
                   //   // check if dish is still in Palette
