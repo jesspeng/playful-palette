@@ -69,8 +69,8 @@ drawingCanvas.addEventListener('mousemove', function(e) {
 var slider = document.getElementById("myRange");
 // var output = document.getElementById("demo");
 slider.oninput = function() {
-  var currentColor = document.getElementById('currentColor');
-  currentColor.style.width = this.value + 'px';
+  var brushSize = document.getElementById('brush-size');
+  brushSize.style.width = this.value + 'px';
 }
 
 ctx.lineWidth = slider.value;

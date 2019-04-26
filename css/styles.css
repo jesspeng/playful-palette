@@ -110,8 +110,7 @@ input[type=range][orient=vertical]
 	  opacity: 0.7;
 	  -webkit-transition: .1s;
 	  transition: opacity .1s;
-
-		top: 100px;
+		top: 50px;
 		left: 20px;
 		z-index: 12;
 		position: fixed;
@@ -125,10 +124,11 @@ input[type=range][orient=vertical]
 }
 
 .jscolor {
-	top: 260px;
-	left: 20px;
+	top: 250px;
+	left: 21px;
 	width: 30px;
-	height: 25px;
+	height: 30px;
+	border-radius: 10%;
 	z-index: 12;
 	position: fixed;
 	cursor: pointer;
@@ -159,13 +159,13 @@ input[type=range][orient=vertical]
 }
 
 #drawingButtons {
-	top: 300px;
+	top: 240px;
 	left: 15px;
 	position: fixed;
 	z-index: 10;
 	background-color: white;
 	border: 1px solid rgba(0,0,0,0.4);
-	border-radius: 10%;
+	border-radius: 5%;
 	width: 40px;
 	height: 150px;
 }
@@ -209,13 +209,13 @@ input[type=range][orient=vertical]
 }
 
 #brush-size {
-	height: 20px;
+	height: 15px;
 	width: 24px;
 	background-color: black;
-	top: 320px;
-	left: 400px;
-  z-index: 10;
-	position: absolute;
+	top: 210px;
+	left: 20px;
+  z-index: 12;
+	position: fixed;
 }
 
 .swatch {
@@ -239,6 +239,10 @@ input[type=range][orient=vertical]
 	border-style: none;
 	background-color: white;
 	border-radius: 10%;
+}
+
+#addDish {
+	margin-top: 45px;
 }
 
 #red-swatch {

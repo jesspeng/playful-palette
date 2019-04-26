@@ -18,42 +18,22 @@
     <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
     <div id="mydivheader"><img id="btn-icon" src="images/hand-icon-01.png"></div>
     <canvas id="mixing"></canvas>
-    <!-- <canvas id="rainbow-square"></canvas> -->
-    <!-- <div id="brush"> -->
     <input type="range" min="8" max="80" orient="vertical" value="32" class="slider" id="myRange" step="4">
-    <!-- <button class="btn" id="currentColor" onclick="showSwatches()"></button></input> -->
-
-    <script src="js/jscolor.js"></script>
-    <input class="jscolor {onFineChange:'update(this)'}" value="000000" id="currentColor">
-    <!-- </div> -->
-
+    <div id="brush-size"></div>
     <button class="btn" id="dropper" onclick="selectedDropper()"><img id="btn-icon" src="images/freeze-icon.png"></button>
     <button class="btn" id="changeColor" onclick="changeColor()"><img id="btn-icon" src="images/changecolor-01.png"></button>
     <button class="btn" id="cleanPalette" onclick="cleanPalette()"><img id="btn-icon" src="images/cleanpalette-01.png"></button>
-
-
-    <!-- <img id="brush-icon" src="images/brush-01.png"> -->
-    <!-- <div id="brush-container"><div id="brush-size"><span id="demo"></span></div></div> -->
+    <script src="js/jscolor.js"></script>
+    <input class="jscolor {onFineChange:'update(this)'}" value="000000" id="currentColor">
     <div id="drawingButtons">
-      <button class="btn-drawing" id="currentSwatch"><img id="btn-icon" src="images/currentColor.png"></button>
-
       <button class="btn-drawing" id="addDish" onclick="addDish()"><img id="btn-icon" src="images/adddish-01.png"></button>
       <button class="btn-drawing" id="dropperCanvas" onclick="selectedDropperCanvas()"><img id="btn-icon" src="images/dropper-01.png"></button>
       <button class="btn-drawing" id="undo"><img id="btn-icon" src="images/undo-01.png"></button>
     </div>
-
-
     <div id="history"><div>
   </div>
-
-
     <script src="js/stats.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="js/index.js"></script>
-
-    <script>
-  
-    </script>
-
   </body>
   </html>
