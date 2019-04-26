@@ -31,6 +31,7 @@ var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
 var swatchHeight = 20;
 var prevSwatchColor = null;
+var interactedWithPalette = false;
 
 /**************INITIALIZE DRAWING AREA *******************/
 var drawingCanvas = document.getElementById('myCanvas');
@@ -80,11 +81,12 @@ ctx.strokeStyle = 'black';
 
 /*********JS SWATCH PICKER*****************************************/
 function update(picker) {
+    interactedWithPalette = false;
     curr_r = picker.rgb[0];
     curr_g = picker.rgb[1];
     curr_b = picker.rgb[2];
-    var currentSwatch = document.getElementById('currentSwatch');
-    currentSwatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
+    var currentColor = document.getElementById('currentColor');
+    currentColor.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
 }
 
 // Make the DIV element draggable:
@@ -151,7 +153,7 @@ drawingCanvas.addEventListener('mousedown', function(e) {
         ctx.beginPath();
         drawingOnCanvas = true;
         ctx.strokeStyle = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
-        var buffer = ctx.lineWidth/4;// buffer to fill in top and bottom of pixel
+        var buffer = ctx.lineWidth/2;// buffer to fill in top and bottom of pixel
         for (var l = i - 720*buffer; l <= i + 720*buffer; l += 720) {// TOP DOWN
           for (var k = l - buffer; k <= l + buffer; k++) { //LEFT RIGHT
             if (k >= 0 || k <= 720*740 - 4) { // check for out of bounds
@@ -161,7 +163,11 @@ drawingCanvas.addEventListener('mousedown', function(e) {
             imgData.data[k*4 + 3] = 255;
             // store pixel data
             pixels[k].color = [curr_r, curr_g, curr_b];
-            pixels[k].dish_id = curr_drawing_id;
+            if (interactedWithPalette === false) {
+              pixels[k].dish_id = null;
+            } else {
+              pixels[k].dish_id = curr_drawing_id;
+            }
             pixels[k].coord_x = coord_x;
             pixels[k].coord_y = coord_y;
             if (curr_swatchCoord_x !== null) {
@@ -189,7 +195,11 @@ drawingCanvas.addEventListener('mouseup', function(e) {
     if (!addingDish && !useDropperOnCanvas) { // add swatch to history and push imageData to history
       ctx.lineTo(mouse.x, mouse.y);
       ctx.stroke();
-      var stroke_obj = { dish_id: curr_drawing_id, color: {r: curr_r, g: curr_g, b: curr_b}, swatchCoord_x: curr_swatchCoord_x, swatchCoord_y: curr_swatchCoord_y, stroke: stroke, lineWidth: slider.value };
+      if (interactedWithPalette === false) {
+        var stroke_obj = { dish_id: null, color: {r: curr_r, g: curr_g, b: curr_b}, swatchCoord_x: null, swatchCoord_y: null, stroke: stroke, lineWidth: slider.value };
+      } else {
+        var stroke_obj = { dish_id: curr_drawing_id, color: {r: curr_r, g: curr_g, b: curr_b}, swatchCoord_x: curr_swatchCoord_x, swatchCoord_y: curr_swatchCoord_y, stroke: stroke, lineWidth: slider.value };
+      }
       stroke = [];
       strokes.push(stroke_obj); // collection of stroke arrays
       var strokesCopy = [];
@@ -262,8 +272,8 @@ drawingCanvas.addEventListener('mouseup', function(e) {
             curr_r = swatch.color[0];
             curr_g = swatch.color[1];
             curr_b = swatch.color[2];
-            var currentSwatch = document.getElementById('currentSwatch');
-            currentSwatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
+            var currentColor = document.getElementById('currentColor');
+            currentColor.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
           } else {
             swatchFromHistory = true;
             retrieveDish_id = this.dish_id;
@@ -281,7 +291,6 @@ drawingCanvas.addEventListener('mouseup', function(e) {
       curr_r = c[0];
       curr_g = c[1];
       curr_b = c[2];
-      currentSwatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
       // set curr_drawing_id to id associated with dropped color
       curr_drawing_id = pixels[i].dish_id;
       moveSwatchCoordHere(pixels[i].coord_x, pixels[i].coord_y);
@@ -303,7 +312,7 @@ var onPaint = function(e) {
   if (!useDropperOnCanvas && !addingDish) {
     pixels[i].color = [curr_r, curr_g, curr_b];
     pixels[i].dish_id = curr_drawing_id;
-    var buffer = ctx.lineWidth/4;// buffer to fill in top and bottom of pixel
+    var buffer = ctx.lineWidth/2;// buffer to fill in top and bottom of pixel
     for (var l = i - 720*buffer; l <= i + 720*buffer; l += 720) {// TOP DOWN
       for (var k = l - buffer; k <= l + buffer; k++) { //LEFT RIGHT
         if (k >= 0 && k <= 720*740 - 4) { // check for out of bounds
@@ -662,8 +671,8 @@ function changePixelColors(dish) {
         // for (var l = 0; l < parentDishes.length; l++) {
           console.log("looping through parent dishes");
           console.log("stroke dish id: " + stroke.dish_id);
-          console.log("parent dish id: " + dish.parent.id);
-          if (stroke.dish_id !== null && stroke.dish_id === dish.parent.id) {
+          // console.log("parent dish id: " + dish.parent.id);
+          if (stroke.dish_id !== null && dish.parent !== null && stroke.dish_id === dish.parent.id) {
             console.log("changing parent dish");
 
             if (stroke.swatchCoord_x === null) {
@@ -931,6 +940,7 @@ var Loader = (function (modules) { // the webpack bootstrap
         ** Handles cases for dropping blobs onto the palette
         */
         Palette.prototype.addBlob = function (event, color) { // event.clientX - newLeft
+          interactedWithPalette = true;
           var _this = this;
           var x = event.clientX;
           var y = event.clientY;
@@ -1017,6 +1027,7 @@ var Loader = (function (modules) { // the webpack bootstrap
             ** Handles cases for dragging existing blobs around the palette
             */
             Palette.prototype.addBlobToDish = function (event, blob) {
+              interactedWithPalette = true;
               var _this = this;
               var x = event.clientX;
               var y = event.clientY;
@@ -1232,19 +1243,20 @@ var Loader = (function (modules) { // the webpack bootstrap
                       dish.swatches[i].b = pixels[2];
                     }
                   }
-                  var curr_dish = dish;
-                  console.log(curr_dish.parent);
-                  for (var i = 0; i < dish.parent.swatchCoords_x.length; i++) {
-                       var x = dish.parent.swatchCoords_x[i];
-                       var y = dish.parent.swatchCoords_y[i];
-                       var pixels = new Uint8Array(4);
-                       gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
-                       if (typeof dish.parent.swatches[i] !== 'undefined') {
-                         dish.parent.swatches[i].r = pixels[0];
-                         dish.parent.swatches[i].g = pixels[1];
-                         dish.parent.swatches[i].b = pixels[2];
+                  if (dish.parent !== null) {
+                    for (var i = 0; i < dish.parent.swatchCoords_x.length; i++) {
+                         var x = dish.parent.swatchCoords_x[i];
+                         var y = dish.parent.swatchCoords_y[i];
+                         var pixels = new Uint8Array(4);
+                         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
+                         if (typeof dish.parent.swatches[i] !== 'undefined') {
+                           dish.parent.swatches[i].r = pixels[0];
+                           dish.parent.swatches[i].g = pixels[1];
+                           dish.parent.swatches[i].b = pixels[2];
+                         }
                        }
-                     }
+                  }
+
                   // while (curr_dish.parent !== null) {
                   //   var parentDish = curr_dish.parent;
                   //   // check if dish is still in Palette
@@ -1329,12 +1341,13 @@ var Loader = (function (modules) { // the webpack bootstrap
                           movedBlob = true;
                         }
                       } else if (_this.isMouseDown && useDropper) {
+                        interactedWithPalette = true;
                         event.preventDefault();
                         // set currentColor swatch to color under mouse over
                         var point = pixelInputToCanvasCoord(event, pCanvas);
                         var pixels = new Uint8Array(4);
                         gl.readPixels(point.x*2, point.y*2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-                        document.getElementById("currentSwatch").style.backgroundColor = 'rgb(' + pixels[0] + ',' + pixels[1] + ',' + pixels[2] + ')';
+                        document.getElementById("currentColor").style.backgroundColor = 'rgb(' + pixels[0] + ',' + pixels[1] + ',' + pixels[2] + ')';
                       }
                     });
                     parent.addEventListener('mouseup', function (event) {

@@ -124,6 +124,7 @@ input[type=range][orient=vertical]
 }
 
 .jscolor {
+	outline: 0;
 	top: 250px;
 	left: 21px;
 	width: 30px;
