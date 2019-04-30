@@ -32,6 +32,8 @@ var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 
 var swatchHeight = 20;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
+var rotDegree = 0;
+var transDegree = 200;
 
 /**************INITIALIZE DRAWING AREA *******************/
 var drawingCanvas = document.getElementById('myCanvas');
@@ -237,23 +239,28 @@ drawingCanvas.addEventListener('mouseup', function(e) {
       // shrink all swatches in history if history is full
       if (prevSwatchColor === null || curr_r !== prevSwatchColor[0] ||
       curr_g !== prevSwatchColor[1] || curr_b !== prevSwatchColor[2]) {
-        var swatchHistory = document.getElementById('history');
-        var swatches = swatchHistory.getElementsByTagName('div');
-        if (swatches.length > 15) {
-          swatchHeight = 300 / swatches.length;
-          for (var i = 0; i < swatches.length; i++) {
-            swatches[i].style.height =  swatchHeight + 'px';
-          }
-          swatchHistory.style.top = '400px';
-        }
-
+        // var swatchHistory = document.getElementById('history');
+        // var swatches = swatchHistory.getElementsByTagName('div');
+        // if (swatches.length > 15) {
+        //   swatchHeight = 300 / swatches.length;
+        //   for (var i = 0; i < swatches.length; i++) {
+        //     swatches[i].style.height =  swatchHeight + 'px';
+        //   }
+        //   swatchHistory.style.top = '400px';
+        // }
+        var myDiv = document.getElementById('mydiv');
         var swatch = document.createElement('div');
+        swatch.id = 'swatch';
         swatch.style.width = '50px';
         swatch.style.height = swatchHeight + 'px';
         swatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
         swatch.color = [curr_r, curr_g, curr_b];
         prevSwatchColor = [curr_r, curr_g, curr_b];
-        swatch.style.border = '0.5px solid rgba(255,255,255,0.25)';
+        swatch.top = transDegree;
+        swatch.left = rotDegree;
+        swatch.transform = 'rotate(' + rotDegree + ')';
+        rotDegree+=5;
+        transDegree-=10;
         swatch.dish_id = curr_drawing_id;
         swatch.coord_x = curr_swatchCoord_x; // gl color extraction coordinate
         swatch.coord_y = curr_swatchCoord_y;
@@ -281,7 +288,7 @@ drawingCanvas.addEventListener('mouseup', function(e) {
             coord_y = swatch.scoord_y;
           }
         });
-        swatchHistory.appendChild(swatch);
+        myDiv.appendChild(swatch);
       }
     } else if (useDropperOnCanvas) {
       // extract color from mouse up event
