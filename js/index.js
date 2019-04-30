@@ -30,13 +30,15 @@ var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, r
 var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
 var swatchHeight = 50;
-var swatchWidth = 20;
+var swatchWidth = 35;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
-var rotDegree = 0;
-var transDegree = -50;
-var leftDegree = 175;
-
+var theta = 0;  // angle that will be increased each loop
+// var h = 200;      // x coordinate of circle center
+// var k = -600;      // y coordinate of circle center
+var r = 177;
+var step = 8;  // amount to add to theta each time (degrees)
+var rotDegree = 90;
 /**************INITIALIZE DRAWING AREA *******************/
 var drawingCanvas = document.getElementById('myCanvas');
 drawingCanvas.width = window.innerWidth;
@@ -250,22 +252,30 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         //   }
         //   swatchHistory.style.top = '400px';
         // }
+
+
+
         var myDiv = document.getElementById('mydiv');
         var swatch = document.createElement('div');
         swatch.style.display='block';
         swatch.style.position = 'absolute';
-        swatch.style.zIndex = '10';
-        swatch.style.width = swatchWidth + 'px';
-        swatch.style.height = swatchHeight + 'px';
+        swatch.style.zIndex = '-1';
         swatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
         swatch.color = [curr_r, curr_g, curr_b];
         prevSwatchColor = [curr_r, curr_g, curr_b];
-        swatch.style.top = transDegree;
-        swatch.style.left = leftDegree;
-        swatch.style.transform = 'rotate(' + rotDegree + ')';
-        rotDegree++;
-        transDegree++;
-        leftDegree+=20;
+        if (theta < 360) {
+          var rad = theta * Math.PI / 180;
+          swatch.style.left = 180 + r*Math.cos(rad) + 'px';
+          swatch.style.top = 125 + r*Math.sin(rad) + 'px';
+          theta+=step;
+        }
+
+        swatch.style.transformOrigin= '0% 100%';
+        swatch.style.transform='rotate(' + rotDegree + 'deg)';
+        rotDegree+=8;
+        swatch.style.width = swatchWidth + 'px';
+        swatch.style.height = swatchHeight + 'px';
+
         swatch.dish_id = curr_drawing_id;
         swatch.coord_x = curr_swatchCoord_x; // gl color extraction coordinate
         swatch.coord_y = curr_swatchCoord_y;
@@ -274,12 +284,12 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         swatch.addEventListener("mousedown", function() {
           var swatches = document.getElementById('history').getElementsByTagName('div');
           for (var i = 0; i < swatches.length; i++) {
-            if (swatches[i].style.width === '70px') {
-              swatches[i].style.width = '50px';
+            if (swatches[i].style.height === '70px') {
+              swatches[i].style.height = '50px';
               break;
             }
           }
-          swatch.style.width = '70px';
+          swatch.style.height = '70px';
           if (this.dish_id === null) {
             curr_r = swatch.color[0];
             curr_g = swatch.color[1];
