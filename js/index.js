@@ -36,7 +36,7 @@ var interactedWithPalette = false;
 var theta = 0;  // angle that will be increased each loop
 // var h = 200;      // x coordinate of circle center
 // var k = -600;      // y coordinate of circle center
-var r = 177;
+var r = 170;
 var step = 8;  // amount to add to theta each time (degrees)
 var rotDegree = 90;
 /**************INITIALIZE DRAWING AREA *******************/
@@ -154,7 +154,7 @@ drawingCanvas.addEventListener('mousedown', function(e) {
         palette.moveSwatchCoord(pixels[i].coord_x, pixels[i].coord_y);
       }
     } else {
-      if (!useDropperOnCanvas) {
+      if (!useDropperOnCanvas && !swatchFromHistory) {
         ctx.lineWidth = slider.value;
         ctx.beginPath();
         drawingOnCanvas = true;
@@ -197,8 +197,8 @@ drawingCanvas.addEventListener('mouseup', function(e) {
 
     drawingCanvas.removeEventListener('mousemove', onPaint, false);
     drawingOnCanvas = false;
-
-    if (!addingDish && !useDropperOnCanvas) { // add swatch to history and push imageData to history
+    swatchFromHistory = false;
+    if (!addingDish && !useDropperOnCanvas && !swatchFromHistory) { // add swatch to history and push imageData to history
       ctx.lineTo(mouse.x, mouse.y);
       ctx.stroke();
       if (interactedWithPalette === false) {
@@ -255,13 +255,13 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         var myDiv = document.getElementById('mydiv');
         var swatches = myDiv.getElementsByClassName('swatch');
         var rotStep = 8;
-        if (swatches.length >= 45) {
-          swatchWidth -= 1;
-          rotStep -= 0.5;
+        if (swatches.length >= 10) {
+          swatchWidth -= 0.5;
+          rotStep -= 1;
           for (var i = 0; i < swatches.length; i++) {
             swatches[i].style.width = swatchWidth;
-            // var newRotDegree = swatch.rotDegree - rotStep;
-            // swatch.style.transform='rotate(' + newRotDegree + 'deg)';
+            var newRotDegree = swatches[i].rotDegree - rotStep;
+            swatches[i].style.transform='rotate(' + newRotDegree + 'deg)';
           }
         }
 
@@ -295,12 +295,12 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         swatch.addEventListener("mousedown", function() {
           var swatches = document.getElementById('history').getElementsByTagName('div');
           for (var i = 0; i < swatches.length; i++) {
-            if (swatches[i].style.height === '70px') {
+            if (swatches[i].style.height === '55px') {
               swatches[i].style.height = '50px';
               break;
             }
           }
-          swatch.style.height = '70px';
+          swatch.style.height = '55px';
           if (this.dish_id === null) {
             curr_r = swatch.color[0];
             curr_g = swatch.color[1];
@@ -493,7 +493,7 @@ function setColor(color) {
 }
 
 function updateSwatchHistory(dish) {
-  var swatches = document.getElementById('history').getElementsByTagName('div');
+  var swatches = document.getElementById('mydiv').getElementsByClassName('swatch');
   var id = dish.id;
   for (var i = 0; i < swatches.length; i++) {
     var swatch = swatches[i];
@@ -1351,13 +1351,10 @@ var Loader = (function (modules) { // the webpack bootstrap
                   }
                   parent.addEventListener('mousedown', function (event) {
                     // if mousedown is in palette area
-                    if (event.clientX < (newRight) && event.clientX > (newLeft + 20) &&
-                      event.clientY < (newBottom - 20) && event.clientY > (newTop)) {
+                    if (swatchFromHistory === false && event.clientX < (newRight) &&
+                    event.clientX > (newLeft + 20) && event.clientY <
+                    (newBottom - 20) && event.clientY > (newTop)) {
                       _this.isMouseDown = true;
-                    } else if (event.clientX > window.innerWidth / 2 && // not being used right now
-                      addingDish === true) { // if mousedown is in canvas area
-                      _this.addDishToPalette(retrieveDish_id);
-                      _this.moveSwatchCoord(pixels[pixel_index].coord_x, pixels[pixel_index].coord_y);
                     } else if (swatchFromHistory === true) {
                       _this.addDishToPalette(retrieveDish_id);
                       _this.moveSwatchCoord(coord_x, coord_y);
@@ -1390,7 +1387,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                         if (_this.activeBlob) {
                           _this.deleteBlob(_this.activeBlob);
                         }
-                      } else if (_this.isMouseDown && !_this.isMouseMoved && !useDropper && !addingDish && !colorChange && !deleteBlob) {
+                      } else if (_this.isMouseDown && !_this.isMouseMoved && !useDropper && !addingDish && !colorChange && !deleteBlob && !swatchFromHistory) {
                         _this.addBlob(event, new color_obj.Color(curr_r, curr_g, curr_b));  // add color here
                         _this.moveSwatchCoord(event.clientX - newLeft, event.clientY - newTop + 3.5);
                       } else if (movedBlob) {
@@ -1556,7 +1553,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                       }
                       // Algorithm to mix colors based on influences (variant
                       //of metaball function)
-                      var fragment = "\n precision highp float;\n varying float vW;\n varying float vH;\n varying float vBlobCnt;\n" + vBlobStr + "\n" + vBlobColorStr + "\n\n void main(void) {\n const int blobCnt = " + this.numBlobs + ";\n\n if (blobCnt == 0) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 0);\n return;\n }\n\n float r = 240.0;\n float b2 = 0.25;\n float b4 = b2 * b2;\n float b6 = b4 * b2;\n\n float influenceSum = 0.0;\n vec3 colors = vec3(0.0, 0.0, 0.0);\n for (int i = 0; i < blobCnt; ++i) {\n vec2 pos = vBlobPos[i];\n float dx = pos.x - float(gl_FragCoord.x);\n float dy = pos.y - float(gl_FragCoord.y);\n float d2 = (dx * dx + dy * dy) / r / r;\n\n if (d2 <= b2) {\n float d4 = d2 * d2;\n float influence = 1.0 - (4.0 * d4 * d2 / b6 - 17.0 * d4\n / b4 + 22.0 * d2 / b2) / 9.0;\n\n if (influence < 0.001) {\n continue;\n }\n\n colors = colors + vBlobColor[i] * influence;\n\n influenceSum += influence;\n}\n}\n\n if (influenceSum < 0.2) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 0);\n }\n else {\n gl_FragColor = vec4(colors / influenceSum, 1.0);\n }\n }\n";
+                      var fragment = "\n precision highp float;\n varying float vW;\n varying float vH;\n varying float vBlobCnt;\n" + vBlobStr + "\n" + vBlobColorStr + "\n\n void main(void) {\n const int blobCnt = " + this.numBlobs + ";\n\n if (blobCnt == 0) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n return;\n }\n\n float r = 240.0;\n float b2 = 0.25;\n float b4 = b2 * b2;\n float b6 = b4 * b2;\n\n float influenceSum = 0.0;\n vec3 colors = vec3(0.0, 0.0, 0.0);\n for (int i = 0; i < blobCnt; ++i) {\n vec2 pos = vBlobPos[i];\n float dx = pos.x - float(gl_FragCoord.x);\n float dy = pos.y - float(gl_FragCoord.y);\n float d2 = (dx * dx + dy * dy) / r / r;\n\n if (d2 <= b2) {\n float d4 = d2 * d2;\n float influence = 1.0 - (4.0 * d4 * d2 / b6 - 17.0 * d4\n / b4 + 22.0 * d2 / b2) / 9.0;\n\n if (influence < 0.001) {\n continue;\n }\n\n colors = colors + vBlobColor[i] * influence;\n\n influenceSum += influence;\n}\n}\n\n if (influenceSum < 0.2) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n }\n else {\n gl_FragColor = vec4(colors / influenceSum, 1.0);\n }\n }\n";
 
                       var fShader = this._getShader(fragment, gl.FRAGMENT_SHADER);
                       if (!fShader) {
