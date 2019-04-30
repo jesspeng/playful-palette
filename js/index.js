@@ -36,7 +36,7 @@ var interactedWithPalette = false;
 var theta = 0;  // angle that will be increased each loop
 // var h = 200;      // x coordinate of circle center
 // var k = -600;      // y coordinate of circle center
-var r = 170;
+var r = 165;
 var step = 8;  // amount to add to theta each time (degrees)
 var rotDegree = 90;
 /**************INITIALIZE DRAWING AREA *******************/
@@ -148,7 +148,7 @@ drawingCanvas.addEventListener('mousedown', function(e) {
     var i = mouse.x + (mouse.y * window.innerWidth);
     if (addingDish === true) {
       retrieveDish_id = pixels[i].dish_id;
-      console.log("dish to retrieve: " + retrieveDish_id);
+      // console.log("dish to retrieve: " + retrieveDish_id);
       if (retrieveDish_id !== null) {
         palette.addDishToPalette(retrieveDish_id);
         palette.moveSwatchCoord(pixels[i].coord_x, pixels[i].coord_y);
@@ -275,7 +275,7 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         prevSwatchColor = [curr_r, curr_g, curr_b];
         var rad = theta * Math.PI / 180;
         swatch.style.left = 213 + r*Math.cos(rad) + 'px';
-        swatch.style.top = 132 + r*Math.sin(rad) + 'px';
+        swatch.style.top = 134 + r*Math.sin(rad) + 'px';
         theta+=step;
         if (theta === 360) {
             theta = 0; // restart loop
@@ -609,7 +609,7 @@ function addDish() {
     useDropperOnCanvas = false;
     document.getElementById("dropperCanvas").style.backgroundColor = "white";
     addingDish = true;
-    console.log("selected to add dish back");
+    // console.log("selected to add dish back");
     document.getElementById("addDish").style.backgroundColor = "#a8e6f7";
     deleteBlob = false;
     document.getElementById("cleanPalette").style.backgroundColor = "#bcbcbc";
@@ -665,8 +665,8 @@ function changePixelColors(dish) {
     parentDishes.push(curr_dish.parent);
     curr_dish = curr_dish.parent;
   }
-  console.log("parentDishes");
-  console.log(parentDishes);
+  // console.log("parentDishes");
+  // console.log(parentDishes);
   var new_color;
   // var changedStrokesLength = changedStrokeIndices.size;
   var strokesCopy = [];
@@ -700,23 +700,23 @@ function changePixelColors(dish) {
           }
 
         } else {
-          console.log("changing parent dish");
-        // for (var l = 0; l < parentDishes.length; l++) {
-          console.log("looping through parent dishes");
-          console.log("stroke dish id: " + stroke.dish_id);
+        //   console.log("changing parent dish");
+        // // for (var l = 0; l < parentDishes.length; l++) {
+        //   console.log("looping through parent dishes");
+        //   console.log("stroke dish id: " + stroke.dish_id);
           // console.log("parent dish id: " + dish.parent.id);
           if (stroke.dish_id !== null && dish.parent !== null && stroke.dish_id === dish.parent.id) {
-            console.log("changing parent dish");
+            // console.log("changing parent dish");
 
             if (stroke.swatchCoord_x === null) {
-              console.log("just using orig color");
+              // console.log("just using orig color");
               strokeCopy.color = dish.parent.blobs[0].color;
             } else {
               for (var m = 0; m < dish.parent.swatchCoords_x.length; m++) {
                 if (stroke.swatchCoord_x === dish.parent.swatchCoords_x[m]) {
                   strokeCopy.color = dish.parent.swatches[m];
-                  console.log("strokecolor: ");
-                  console.log(strokeCopy.color);
+                  // console.log("strokecolor: ");
+                  // console.log(strokeCopy.color);
                   break;
                 }
               }
@@ -995,7 +995,7 @@ var Loader = (function (modules) { // the webpack bootstrap
             var nearestBlob = _this.getNearestBlob((x - newLeft) * this.pixelRatio - 15,
               this.height - (y - newTop) * this.pixelRatio, blob);
               if (nearestBlob !== null) {
-                console.log("nearestDishId: " + nearestBlob.dish_id);
+                // console.log("nearestDishId: " + nearestBlob.dish_id);
                 var nearestDish = _this.dishes[nearestBlob.dish_id];
                 if (_this.isDifferent(blob, nearestDish)) {
                   var updated_blobs = _this.addToPrevDish(nearestDish.blobs, ++id);
@@ -1051,8 +1051,8 @@ var Loader = (function (modules) { // the webpack bootstrap
                 curr_swatchCoord_y = (pixelInputToCanvasCoord(event, pCanvas).y)*2;
                 _this.blobs.push(blob);
                 curr_drawing_id = id;
-                console.log(_this.blobs);
-                console.log(_this.dishes);
+                // console.log(_this.blobs);
+                // console.log(_this.dishes);
               };
 
 
@@ -1146,8 +1146,8 @@ var Loader = (function (modules) { // the webpack bootstrap
                       _this.updateThisBlobs(new_blob);
                     }
                   }
-                  console.log(_this.blobs);
-                  console.log(_this.dishes);
+                  // console.log(_this.blobs);
+                  // console.log(_this.dishes);
                 }
 
                 Palette.prototype.blobColorsMatch = function (blobs1, blobs2) {
@@ -1448,7 +1448,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                           curr_swatchCoord_x = point.x*2;
                           curr_swatchCoord_y = point.y*2;
 
-                          console.log(_this.dishes);
+                          // console.log(_this.dishes);
                         }
                       }
                       _this.isMouseDown = false;
