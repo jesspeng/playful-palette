@@ -30,7 +30,7 @@ var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, r
 var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
 var swatchHeight = 50;
-var swatchWidth = 35;
+var swatchWidth = 25;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
 var theta = 0;  // angle that will be increased each loop
@@ -252,27 +252,38 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         //   }
         //   swatchHistory.style.top = '400px';
         // }
-
-
-
         var myDiv = document.getElementById('mydiv');
+        var swatches = myDiv.getElementsByClassName('swatch');
+        var rotStep = 8;
+        if (swatches.length >= 45) {
+          swatchWidth -= 1;
+          rotStep -= 0.5;
+          for (var i = 0; i < swatches.length; i++) {
+            swatches[i].style.width = swatchWidth;
+            // var newRotDegree = swatch.rotDegree - rotStep;
+            // swatch.style.transform='rotate(' + newRotDegree + 'deg)';
+          }
+        }
+
         var swatch = document.createElement('div');
+        swatch.className = 'swatch';
         swatch.style.display='block';
         swatch.style.position = 'absolute';
         swatch.style.zIndex = '-1';
         swatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
         swatch.color = [curr_r, curr_g, curr_b];
         prevSwatchColor = [curr_r, curr_g, curr_b];
-        if (theta < 360) {
-          var rad = theta * Math.PI / 180;
-          swatch.style.left = 180 + r*Math.cos(rad) + 'px';
-          swatch.style.top = 125 + r*Math.sin(rad) + 'px';
-          theta+=step;
+        var rad = theta * Math.PI / 180;
+        swatch.style.left = 213 + r*Math.cos(rad) + 'px';
+        swatch.style.top = 132 + r*Math.sin(rad) + 'px';
+        theta+=step;
+        if (theta === 360) {
+            theta = 0; // restart loop
         }
-
         swatch.style.transformOrigin= '0% 100%';
+        rotDegree+=rotStep;
         swatch.style.transform='rotate(' + rotDegree + 'deg)';
-        rotDegree+=8;
+        swatch.rotDegree = rotDegree;
         swatch.style.width = swatchWidth + 'px';
         swatch.style.height = swatchHeight + 'px';
 
