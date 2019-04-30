@@ -29,11 +29,13 @@ var mixingCanvas = document.getElementById('mixing');
 var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, rightBoundary = mixingCanvas.width*2;
 var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
-var swatchHeight = 20;
+var swatchHeight = 50;
+var swatchWidth = 20;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
 var rotDegree = 0;
-var transDegree = 200;
+var transDegree = -50;
+var leftDegree = 175;
 
 /**************INITIALIZE DRAWING AREA *******************/
 var drawingCanvas = document.getElementById('myCanvas');
@@ -250,17 +252,20 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         // }
         var myDiv = document.getElementById('mydiv');
         var swatch = document.createElement('div');
-        swatch.id = 'swatch';
-        swatch.style.width = '50px';
+        swatch.style.display='block';
+        swatch.style.position = 'absolute';
+        swatch.style.zIndex = '10';
+        swatch.style.width = swatchWidth + 'px';
         swatch.style.height = swatchHeight + 'px';
         swatch.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
         swatch.color = [curr_r, curr_g, curr_b];
         prevSwatchColor = [curr_r, curr_g, curr_b];
-        swatch.top = transDegree;
-        swatch.left = rotDegree;
-        swatch.transform = 'rotate(' + rotDegree + ')';
-        rotDegree+=5;
-        transDegree-=10;
+        swatch.style.top = transDegree;
+        swatch.style.left = leftDegree;
+        swatch.style.transform = 'rotate(' + rotDegree + ')';
+        rotDegree++;
+        transDegree++;
+        leftDegree+=20;
         swatch.dish_id = curr_drawing_id;
         swatch.coord_x = curr_swatchCoord_x; // gl color extraction coordinate
         swatch.coord_y = curr_swatchCoord_y;
