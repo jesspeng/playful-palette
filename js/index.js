@@ -495,6 +495,12 @@ function setColor(color) {
 function updateSwatchHistory(dish) {
   var swatches = document.getElementById('mydiv').getElementsByClassName('swatch');
   var id = dish.id;
+  var parentDish = null;
+  var parentId = null;
+  if (dish.parent !== null) {
+    parentDish = dish.parent;
+    parentId = dish.parent.id;
+  }
   for (var i = 0; i < swatches.length; i++) {
     var swatch = swatches[i];
     if (swatch.dish_id !== null && swatch.dish_id === id) {
@@ -502,6 +508,15 @@ function updateSwatchHistory(dish) {
         for (var j = 0; j < dish.swatchCoords_x.length; j++) {
           if (dish.swatchCoords_x[j] === swatch.coord_x && dish.swatchCoords_y[j] === swatch.coord_y) {
             var new_color = dish.swatches[j];
+            swatch.style.backgroundColor = 'rgb(' + new_color.r + ',' + new_color.g + ',' + new_color.b + ')';
+          }
+        }
+      }
+    } else if (parentId !== null && swatch.dish_id !== null && swatch.dish_id == parentId) {
+      if (swatch.coord_x !== null) {
+        for (var j = 0; j < parentDish.swatchCoords_x.length; j++) {
+          if (parentDish.swatchCoords_x[j] === swatch.coord_x && parentDish.swatchCoords_y[j] === swatch.coord_y) {
+            var new_color = parentDish.swatches[j];
             swatch.style.backgroundColor = 'rgb(' + new_color.r + ',' + new_color.g + ',' + new_color.b + ')';
           }
         }
