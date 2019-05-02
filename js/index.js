@@ -29,15 +29,15 @@ var mixingCanvas = document.getElementById('mixing');
 var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, rightBoundary = mixingCanvas.width*2;
 var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
-var swatchHeight = 50;
-var swatchWidth = 25;
+var swatchHeight = 40;
+var swatchWidth = 1;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
 var theta = 0;  // angle that will be increased each loop
 // var h = 200;      // x coordinate of circle center
 // var k = -600;      // y coordinate of circle center
-var r = 165;
-var step = 8;  // amount to add to theta each time (degrees)
+var r = 170;
+var step = 5;  // amount to add to theta each time (degrees)
 var rotDegree = 90;
 /**************INITIALIZE DRAWING AREA *******************/
 var drawingCanvas = document.getElementById('myCanvas');
@@ -254,10 +254,10 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         // }
         var myDiv = document.getElementById('mydiv');
         var swatches = myDiv.getElementsByClassName('swatch');
-        var rotStep = 8;
-        if (swatches.length >= 10) {
+        var rotStep = 5;
+        if (swatches.length >= 50) {
           swatchWidth -= 0.5;
-          rotStep -= 1;
+          rotStep -= 0.75;
           for (var i = 0; i < swatches.length; i++) {
             swatches[i].style.width = swatchWidth;
             var newRotDegree = swatches[i].rotDegree - rotStep;
@@ -274,7 +274,7 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         swatch.color = [curr_r, curr_g, curr_b];
         prevSwatchColor = [curr_r, curr_g, curr_b];
         var rad = theta * Math.PI / 180;
-        swatch.style.left = 213 + r*Math.cos(rad) + 'px';
+        swatch.style.left = 210 + r*Math.cos(rad) + 'px';
         swatch.style.top = 134 + r*Math.sin(rad) + 'px';
         theta+=step;
         if (theta === 360) {
@@ -295,12 +295,13 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         swatch.addEventListener("mousedown", function() {
           var swatches = document.getElementById('history').getElementsByTagName('div');
           for (var i = 0; i < swatches.length; i++) {
-            if (swatches[i].style.height === '55px') {
-              swatches[i].style.height = '50px';
+            var newSwatchHeight = swatchHeight + 5;
+            if (swatches[i].style.height === newSwatchHeight +'px') {
+              swatches[i].style.height = swatchHeight + 'px';
               break;
             }
           }
-          swatch.style.height = '55px';
+          swatch.style.height = newSwatchHeight + 'px';
           if (this.dish_id === null) {
             curr_r = swatch.color[0];
             curr_g = swatch.color[1];
@@ -870,8 +871,16 @@ var Loader = (function (modules) { // the webpack bootstrap
 
       Palette.prototype.isDifferent = function (blob, dish) {
         var _this = this;
+        var this_r = blob.color.r;
+        var this_g = blob.color.g;
+        var this_b = blob.color.b;
         for (var i = 0; i < dish.blobs.length; i++) {
-          if (_this.isSameColor(dish.blobs[i].color, blob.color)) {
+          var other_r = dish.blobs[i].color.r;
+          var other_g = dish.blobs[i].color.g;
+          var other_b = dish.blobs[i].color.b;
+          if (_this.isSameColor(dish.blobs[i].color, blob.color) ||
+            (Math.abs(this_r - other_r) < 50 && Math.abs(this_g - other_g) < 50 &&
+            Math.abs(this_b - other_b) < 50)) {
             return false;
           }
         }
@@ -1286,9 +1295,9 @@ var Loader = (function (modules) { // the webpack bootstrap
                     var pixels = new Uint8Array(4);
                     gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
                     if (typeof dish.swatches[i] !== 'undefined') {
-                      dish.swatches[i].r = pixels[0];
-                      dish.swatches[i].g = pixels[1];
-                      dish.swatches[i].b = pixels[2];
+                      dish.swatches[i].r = Math.floor(pixels[0]);
+                      dish.swatches[i].g = Math.floor(pixels[1]);
+                      dish.swatches[i].b = Math.floor(pixels[2]);
                     }
                   }
                   if (dish.parent !== null) {
@@ -1298,9 +1307,9 @@ var Loader = (function (modules) { // the webpack bootstrap
                          var pixels = new Uint8Array(4);
                          gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
                          if (typeof dish.parent.swatches[i] !== 'undefined') {
-                           dish.parent.swatches[i].r = pixels[0];
-                           dish.parent.swatches[i].g = pixels[1];
-                           dish.parent.swatches[i].b = pixels[2];
+                           dish.parent.swatches[i].r = Math.floor(pixels[0]);
+                           dish.parent.swatches[i].g = Math.floor(pixels[1]);
+                           dish.parent.swatches[i].b = Math.floor(pixels[2]);
                          }
                        }
                   }
