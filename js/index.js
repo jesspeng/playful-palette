@@ -29,7 +29,7 @@ var mixingCanvas = document.getElementById('mixing');
 var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, rightBoundary = mixingCanvas.width*2;
 var offsetTop = 300, offsetLeft = 75;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
-var swatchHeight = 40;
+var swatchHeight = 40; 
 var swatchWidth = 1;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
