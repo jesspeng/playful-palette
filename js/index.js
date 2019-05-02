@@ -997,9 +997,9 @@ var Loader = (function (modules) { // the webpack bootstrap
         ** Handles cases for dropping blobs onto the palette
         */
         Palette.prototype.addBlob = function (event, color) { // event.clientX - newLeft
-          color.r = Math.floor(color.r);
-          color.g = Math.floor(color.g);
-          color.b = Math.floor(color.b); 
+          // color.r = Math.floor(color.r);
+          // color.g = Math.floor(color.g);
+          // color.b = Math.floor(color.b);
           interactedWithPalette = true;
           var _this = this;
           var x = event.clientX;
