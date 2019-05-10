@@ -1,9 +1,9 @@
+var gl, pCanvas; // Palette
 var curr_r = 0, curr_g = 0, curr_b = 0;
 var useDropper = false;
 var useDropperOnCanvas = false;
 var addingDish = false;
 var id = 0; // incremented with each new dish
-var gl, pCanvas; // Palette
 var curr_dish_id = null;
 var retrieveDish_id = null;
 var movedBlob = false;
@@ -26,20 +26,21 @@ var changedStrokes = new Map();
 var previousStrokeIndicesLength = 0;
 var drawingHistory = [];
 var mixingCanvas = document.getElementById('mixing');
-var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, rightBoundary = mixingCanvas.width*2;
+/*Palette boundaries*/
 var offsetTop = 300, offsetLeft = 75;
+var topBoundary = 0, leftBoundary = 0, bottomBoundary = mixingCanvas.height*2, rightBoundary = mixingCanvas.width*2;
 var newTop = offsetTop, newLeft = offsetLeft, newBottom = mixingCanvas.height*2 + offsetTop, newRight = mixingCanvas.width*2 + offsetLeft;
 var swatchHeight = 40;
 var swatchWidth = 1;
 var prevSwatchColor = null;
 var interactedWithPalette = false;
-var theta = 0;  // angle that will be increased each loop
-// var h = 200;      // x coordinate of circle center
-// var k = -600;      // y coordinate of circle center
+/*history wheel*/
+var theta = 0;
 var r = 170;
-var step = 5;  // amount to add to theta each time (degrees)
+var step = 5;
 var rotDegree = 90;
-/**************INITIALIZE DRAWING AREA *******************/
+
+/************** Initialize drawing canvas *******************/
 var drawingCanvas = document.getElementById('myCanvas');
 drawingCanvas.width = window.innerWidth;
 drawingCanvas.height = window.innerHeight;
@@ -54,13 +55,13 @@ for (let i = 0; i < imgData.data.length; i += 4) {
   imgData.data[i + 0] = 255;        // R value
   imgData.data[i + 1] = 255;        // G value
   imgData.data[i + 2] = 255;        // B value
-  imgData.data[i + 3] = 0;        // A value
-  pixels[j++] = {                 // store pixel object
+  imgData.data[i + 3] = 0;          // A value
+  pixels[j++] = {                   // store pix
     dish_id: null,
     color: 'white',
-    swatchCoord_x: null,
+    swatchCoord_x: null, // coordinates of swatch color
     swatchCoord_y: null,
-    coord_x: null,
+    coord_x: null, // coordinates of swatch marker
     coord_y: null
   };
 }
@@ -72,7 +73,7 @@ drawingCanvas.addEventListener('mousemove', function(e) {
   mouse.y = e.pageY - this.offsetTop;
 }, false);
 
-/*********BRUSH*****************************************/
+/********* Brush slider *****************************************/
 var slider = document.getElementById("myRange");
 // var output = document.getElementById("demo");
 slider.oninput = function() {
@@ -85,7 +86,7 @@ ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 ctx.strokeStyle = 'black';
 
-/*********JS SWATCH PICKER*****************************************/
+/********* JS color swatch picker *****************************************/
 function update(picker) {
     interactedWithPalette = false;
     curr_r = picker.rgb[0];
@@ -95,7 +96,7 @@ function update(picker) {
     currentColor.style.backgroundColor = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
 }
 
-// Make the DIV element draggable:
+/*************** Make palette draggable **************************/
 dragElement(document.getElementById("mydiv"));
 
 function dragElement(elmnt) {
@@ -109,29 +110,24 @@ function dragElement(elmnt) {
   function dragMouseDown(e) {
     e = e || window.event;
     e.preventDefault();
-    // get the mouse cursor position at startup:
     pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
     document.onmousemove = elementDrag;
   }
 
   function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
-    // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    // set the element's new position:
     elmnt.style.top = elmnt.offsetTop - pos2 + "px";
     elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
   }
 
   function closeDragElement() {
-    // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
     offsetTop = elmnt.offsetTop - pos2;
@@ -142,27 +138,26 @@ function dragElement(elmnt) {
     newBottom = bottomBoundary + offsetTop;
   }
 }
-/**************DRAWING AREA LOGIC**********************************************/
+
+/************** Drawing canvas mouse events ********************************/
 drawingCanvas.addEventListener('mousedown', function(e) {
-    // each pixel stores a reference to its dish id, its color, and its swatch coordinates
-    var i = mouse.x + (mouse.y * window.innerWidth);
-    if (addingDish === true) {
-      retrieveDish_id = pixels[i].dish_id;
-      // console.log("dish to retrieve: " + retrieveDish_id);
-      if (retrieveDish_id !== null) {
-        palette.addDishToPalette(retrieveDish_id);
-        palette.moveSwatchCoord(pixels[i].coord_x, pixels[i].coord_y);
-      }
-    } else {
-      if (!useDropperOnCanvas && !swatchFromHistory) {
-        ctx.lineWidth = slider.value;
-        ctx.beginPath();
-        drawingOnCanvas = true;
-        ctx.strokeStyle = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
-        var buffer = ctx.lineWidth/2;// buffer to fill in top and bottom of pixel
-        for (var l = i - 720*buffer; l <= i + 720*buffer; l += 720) {// TOP DOWN
-          for (var k = l - buffer; k <= l + buffer; k++) { //LEFT RIGHT
-            if (k >= 0 || k <= 720*740 - 4) { // check for out of bounds
+  var i = mouse.x + (mouse.y * window.innerWidth);
+  if (addingDish === true) {
+    retrieveDish_id = pixels[i].dish_id;
+    if (retrieveDish_id !== null) {
+      palette.addDishToPalette(retrieveDish_id);
+      palette.moveSwatchMarker(pixels[i].coord_x, pixels[i].coord_y);
+    }
+  } else {
+    if (!useDropperOnCanvas && !swatchFromHistory) {
+      ctx.lineWidth = slider.value;
+      ctx.beginPath();
+      drawingOnCanvas = true;
+      ctx.strokeStyle = 'rgb(' + curr_r + ',' + curr_g + ',' + curr_b + ')';
+      var buffer = ctx.lineWidth/2;// buffer to fill in top and bottom of pixel
+      for (var l = i - 720*buffer; l <= i + 720*buffer; l += 720) {// TOP DOWN
+        for (var k = l - buffer; k <= l + buffer; k++) { //LEFT RIGHT
+          if (k >= 0 || k <= 720*740 - 4) { // check for out of bounds
             imgData.data[k*4 + 0] = curr_r;
             imgData.data[k*4 + 1] = curr_g;
             imgData.data[k*4 + 2] = curr_b;
@@ -181,24 +176,20 @@ drawingCanvas.addEventListener('mousedown', function(e) {
               pixels[k].swatchCoord_y = curr_swatchCoord_y;
             }
           }
-          }
         }
-        ctx.moveTo(mouse.x, mouse.y);
-        stroke.push({ x: mouse.x, y: mouse.y });
-
       }
+      ctx.moveTo(mouse.x, mouse.y);
+      stroke.push({ x: mouse.x, y: mouse.y });
     }
-    drawingCanvas.addEventListener('mousemove', onPaint, false);
-
-
+  }
+  drawingCanvas.addEventListener('mousemove', onPaint, false);
 }, false);
 
 drawingCanvas.addEventListener('mouseup', function(e) {
-
     drawingCanvas.removeEventListener('mousemove', onPaint, false);
     drawingOnCanvas = false;
     swatchFromHistory = false;
-    if (!addingDish && !useDropperOnCanvas && !swatchFromHistory) { // add swatch to history and push imageData to history
+    if (!addingDish && !useDropperOnCanvas && !swatchFromHistory) {
       ctx.lineTo(mouse.x, mouse.y);
       ctx.stroke();
       if (interactedWithPalette === false) {
@@ -209,7 +200,7 @@ drawingCanvas.addEventListener('mouseup', function(e) {
       stroke = [];
       strokes.push(stroke_obj); // collection of stroke arrays
       var strokesCopy = [];
-
+      // push new stroke to drawing history
       if (drawingHistory.length - 1 >= 0) {
         var strokesLastState = drawingHistory[drawingHistory.length - 1];
         for (var i = 0; i < strokesLastState.length; i++) {
@@ -227,7 +218,6 @@ drawingCanvas.addEventListener('mouseup', function(e) {
           strokesCopy.push(currStrokeCopy);
         }
       }
-
       var di = stroke_obj.dish_id;
       var swatchx = stroke_obj.swatchCoord_x;
       var swatchy = stroke_obj.swatchCoord_y;
@@ -240,22 +230,14 @@ drawingCanvas.addEventListener('mouseup', function(e) {
       var currStrokeCopy = { dish_id: di, color: c, swatchCoord_x: swatchx, swatchCoord_y: swatchy, stroke: strokeCoords, lineWidth: lw };
       strokesCopy.push(currStrokeCopy);
       drawingHistory.push(strokesCopy);
-      // shrink all swatches in history if history is full
+      // if current color is different from previous color add new swatch to wheel
       if (prevSwatchColor === null || curr_r !== prevSwatchColor[0] ||
       curr_g !== prevSwatchColor[1] || curr_b !== prevSwatchColor[2]) {
-        // var swatchHistory = document.getElementById('history');
-        // var swatches = swatchHistory.getElementsByTagName('div');
-        // if (swatches.length > 15) {
-        //   swatchHeight = 300 / swatches.length;
-        //   for (var i = 0; i < swatches.length; i++) {
-        //     swatches[i].style.height =  swatchHeight + 'px';
-        //   }
-        //   swatchHistory.style.top = '400px';
-        // }
         var myDiv = document.getElementById('mydiv');
         var swatches = myDiv.getElementsByClassName('swatch');
         var rotStep = 5;
         if (swatches.length >= 50) {
+          // shrink swatches
           swatchWidth -= 0.5;
           rotStep -= 0.75;
           for (var i = 0; i < swatches.length; i++) {
@@ -264,7 +246,7 @@ drawingCanvas.addEventListener('mouseup', function(e) {
             swatches[i].style.transform='rotate(' + newRotDegree + 'deg)';
           }
         }
-
+        // add new swatch to wheel
         var swatch = document.createElement('div');
         swatch.className = 'swatch';
         swatch.style.display='block';
@@ -286,12 +268,12 @@ drawingCanvas.addEventListener('mouseup', function(e) {
         swatch.rotDegree = rotDegree;
         swatch.style.width = swatchWidth + 'px';
         swatch.style.height = swatchHeight + 'px';
-
         swatch.dish_id = curr_drawing_id;
         swatch.coord_x = curr_swatchCoord_x; // gl color extraction coordinate
         swatch.coord_y = curr_swatchCoord_y;
         swatch.scoord_x = coord_x; // swatch coordinate
         swatch.scoord_y = coord_y;
+
         swatch.addEventListener("mousedown", function() {
           var swatches = document.getElementById('history').getElementsByTagName('div');
           for (var i = 0; i < swatches.length; i++) {
@@ -327,11 +309,11 @@ drawingCanvas.addEventListener('mouseup', function(e) {
       curr_b = c[2];
       // set curr_drawing_id to id associated with dropped color
       curr_drawing_id = pixels[i].dish_id;
-      moveSwatchCoordHere(pixels[i].coord_x, pixels[i].coord_y);
+      moveSwatchMarkerHere(pixels[i].coord_x, pixels[i].coord_y);
     }
 }, false);
 
-function moveSwatchCoordHere(x, y) {
+function moveSwatchMarkerHere(x, y) {
   coord_x = x;
   coord_y = y;
   var newX = x - 6;
@@ -350,12 +332,11 @@ var onPaint = function(e) {
     for (var l = i - 720*buffer; l <= i + 720*buffer; l += 720) {// TOP DOWN
       for (var k = l - buffer; k <= l + buffer; k++) { //LEFT RIGHT
         if (k >= 0 && k <= 720*740 - 4) { // check for out of bounds
-        imgData.data[k*4 + 0] = curr_r;
-        imgData.data[k*4 + 1] = curr_g;
-        imgData.data[k*4 + 2] = curr_b;
-        imgData.data[k*4 + 3] = 255;
-        // store pixel data
-        // if (pixels[k] !== 'undefined') {
+          imgData.data[k*4 + 0] = curr_r;
+          imgData.data[k*4 + 1] = curr_g;
+          imgData.data[k*4 + 2] = curr_b;
+          imgData.data[k*4 + 3] = 255;
+          // store pixel data
           pixels[k].color = [curr_r, curr_g, curr_b];
           pixels[k].dish_id = curr_drawing_id;
           pixels[k].coord_x = coord_x;
@@ -364,15 +345,14 @@ var onPaint = function(e) {
             pixels[k].swatchCoord_x = curr_swatchCoord_x;
             pixels[k].swatchCoord_y = curr_swatchCoord_y;
           }
-        // }
-      }
+        }
       }
     }
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
     stroke.push({ x: mouse.x, y: mouse.y });
   } else if (useDropperOnCanvas) {
-    // update currentColor swatch
+    // update current color square
     var c = ctx.getImageData(mouse.x, mouse.y, 1, 1).data;
     document.getElementById("currentColor").style.backgroundColor = 'rgb(' + c[0] +',' + c[1] + ',' + c[2] + ')';
   }
@@ -391,11 +371,12 @@ function redraw() {
   // clear canvas
   ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
   if (drawingHistory.length - 1 >= 0) {
-  var strokesLastState = drawingHistory[drawingHistory.length - 1];
-  for (var j = 0; j < strokesLastState.length; j++) {
-    var stroke = strokesLastState[j].stroke;
-    var lineWidth = strokesLastState[j].lineWidth;
-    var color = strokesLastState[j].color;
+    // retrieve last state of drawing canvas
+    var strokesLastState = drawingHistory[drawingHistory.length - 1];
+    for (var j = 0; j < strokesLastState.length; j++) {
+      var stroke = strokesLastState[j].stroke;
+      var lineWidth = strokesLastState[j].lineWidth;
+      var color = strokesLastState[j].color;
       for (var i = 0; i < stroke.length; i++) {
         ctx.lineWidth = lineWidth;
         var r = color.r;
@@ -406,6 +387,7 @@ function redraw() {
           ctx.beginPath();
           ctx.moveTo(stroke[i].x, stroke[i].y);
         } else {
+          // redraw strokes using stored mouse points
           if (i % 2 === 0) {
             ctx.beginPath();
             ctx.moveTo(stroke[i].x, stroke[i].y);
@@ -421,75 +403,7 @@ function redraw() {
           }
         }
       }
-  }
-}
-  // previousStrokeIndicesLength += changedStrokeIndices.size;
-}
-
-// FUNCTION: load brush with color from swatch panel
-function setColor(color) {
-  curr_swatchCoord_x = null;
-  curr_swatchCoord_y = null;
-  if (color === 'red') {
-    curr_r = 255;
-    curr_g = 0;
-    curr_b = 0;
-  } else if (color === 'green') {
-    curr_r = 51;
-    curr_g = 249;
-    curr_b = 7;
-  } else if (color === 'blue') {
-    curr_r = 0;
-    curr_g = 191;
-    curr_b = 255;
-  } else if (color === 'yellow') {
-    curr_r = 255;
-    curr_g = 255;
-    curr_b = 0;
-  } else if (color === 'darkblue') {
-    curr_r = 0;
-    curr_g = 70;
-    curr_b = 211;
-  } else if (color === 'tan') {
-    curr_r = 206;
-    curr_g = 177;
-    curr_b = 142;
-  } else if (color === 'magenta') {
-    curr_r = 244;
-    curr_g = 2;
-    curr_b = 200;
-  } else if (color === 'brown') {
-    curr_r = 124;
-    curr_g = 74;
-    curr_b = 9;
-  } else if (color === 'orange') {
-    curr_r = 255;
-    curr_g = 144;
-    curr_b = 0;
-  } else if (color === 'purple') {
-    curr_r = 134;
-    curr_g = 20;
-    curr_b = 201;
-  } else if (color === 'black') {
-    curr_r = 0;
-    curr_g = 0;
-    curr_b = 0;
-  } else if (color === 'white') {
-    curr_r = 255;
-    curr_g = 255;
-    curr_b = 255;
-  } else if (color === 'lavender') {
-    curr_r = 205;
-    curr_g = 132;
-    curr_b = 224;
-  } else if (color === 'forestgreen') {
-    curr_r = 20;
-    curr_g = 89;
-    curr_b = 5;
-  } else if (color === 'grey') {
-    curr_r = 119;
-    curr_g = 119;
-    curr_b = 119;
+    }
   }
 }
 
@@ -982,7 +896,7 @@ var Loader = (function (modules) { // the webpack bootstrap
         /*
         ** Add swatch coordinates to palette after selecting from swatch history
         */
-        Palette.prototype.moveSwatchCoord = function (x, y) {
+        Palette.prototype.moveSwatchMarker = function (x, y) {
           var _this = this;
           var newX = x - 6;
           var newY = y - 4;
@@ -1354,7 +1268,7 @@ var Loader = (function (modules) { // the webpack bootstrap
 
                 Palette.prototype.deleteBlob = function (blob) {
                   var _this = this;
-                  _this.moveSwatchCoord(0, 0);
+                  _this.moveSwatchMarker(0, 0);
                   for (var i = 0; i < _this.blobs.length; i++) {
                     if (_this.isSameBlob(_this.blobs[i], blob)) {
                       // delete marker
@@ -1384,8 +1298,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                       _this.isMouseDown = true;
                     } else if (swatchFromHistory === true) {
                       _this.addDishToPalette(retrieveDish_id);
-                      _this.moveSwatchCoord(coord_x, coord_y);
-                      // _this.moveSwatchCoord(coord_x + newLeft, coord_y + newTop);
+                      _this.moveSwatchMarker(coord_x, coord_y);
                       swatchFromHistory = false;
                     }
                     });
@@ -1416,11 +1329,11 @@ var Loader = (function (modules) { // the webpack bootstrap
                         }
                       } else if (_this.isMouseDown && !_this.isMouseMoved && !useDropper && !addingDish && !colorChange && !deleteBlob && !swatchFromHistory) {
                         _this.addBlob(event, new color_obj.Color(curr_r, curr_g, curr_b));  // add color here
-                        _this.moveSwatchCoord(event.clientX - newLeft, event.clientY - newTop + 3.5);
+                        _this.moveSwatchMarker(event.clientX - newLeft, event.clientY - newTop + 3.5);
                       } else if (movedBlob) {
                         movedBlob = false;
                         _this.addBlobToDish(event, _this.activeBlob);
-                        _this.moveSwatchCoord(event.clientX - newLeft, event.clientY - newTop + 3.5);
+                        _this.moveSwatchMarker(event.clientX - newLeft, event.clientY - newTop + 3.5);
 
                       } else if (_this.isMouseDown && !_this.isMouseMoved && colorChange) {
                         var blob;
@@ -1454,7 +1367,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                         }
                       }
                     } else if (_this.isMouseDown && !_this.isMouseMoved  && !_this.activeBlob && useDropper) {
-                        _this.moveSwatchCoord(event.clientX - newLeft, event.clientY - newTop - 1);
+                        _this.moveSwatchMarker(event.clientX - newLeft, event.clientY - newTop - 1);
                         var point = pixelInputToCanvasCoord(event, pCanvas);
                         var pixels = new Uint8Array(4);
                         gl.readPixels(point.x*2, point.y*2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
