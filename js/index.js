@@ -407,6 +407,7 @@ function redraw() {
   }
 }
 
+// update swatches in wheel after editing a mixing dish
 function updateSwatchHistory(dish) {
   var swatches = document.getElementById('mydiv').getElementsByClassName('swatch');
   var id = dish.id;
@@ -456,35 +457,7 @@ undoBtn.addEventListener('mouseup', function (e) {
   };
 });
 
-function showSwatches() {
-  var swatches = document.getElementById('swatches');
-  if (swatches.style.display === 'none') {
-    swatches.style.display = 'block';
-  } else {
-    swatches.style.display = 'none';
-  }
-}
-// const rainbowCanvas = document.getElementById('rainbow-square');
-// const rainbowCtx = rainbowCanvas.getContext('2d');
-// const rainbowData = rainbowCtx.createImageData(100, 100);
-//
-// // Iterate through every pixel
-// for (let i = 0; i < rainbowData.data.length; i += 4) {
-//   // Percentage in the x direction, times 255
-//   let x = (i % 400) / 400 * 255;
-//   // Percentage in the y direction, times 255
-//   let y = Math.ceil(i / 400) / 100 * 255;
-//
-//   // Modify pixel data
-//   rainbowData.data[i + 0] = x;        // R value
-//   rainbowData.data[i + 1] = y;        // G value
-//   rainbowData.data[i + 2] = 255 - x;  // B value
-//   rainbowData.data[i + 3] = 255;      // A value
-// }
-//
-// // Draw image data to the canvas
-// rainbowCtx.putImageData(rainbowData, 0, 0);
-
+/************** Selecting/Deselecting buttons ***************************/
 function selectedDropper() {
   if (useDropper) { // you've unselected to use the dropper
     moveEnabled = true;
@@ -595,104 +568,55 @@ function changePixelColors(dish) {
     parentDishes.push(curr_dish.parent);
     curr_dish = curr_dish.parent;
   }
-  // console.log("parentDishes");
-  // console.log(parentDishes);
   var new_color;
-  // var changedStrokesLength = changedStrokeIndices.size;
   var strokesCopy = [];
   if (drawingHistory.length - 1 >= 0) {
     var strokesLastState = drawingHistory[drawingHistory.length - 1];
     for (var i = 0; i < strokesLastState.length; i++) {
       var stroke = strokesLastState[i];
-      // if (stroke.dish_id !== null) {
-        var strokeCopy = {};
-        strokeCopy.dish_id = stroke.dish_id;
-        strokeCopy.swatchCoord_x = stroke.swatchCoord_x;
-        strokeCopy.swatchCoord_y = stroke.swatchCoord_y;
-        strokeCopy.lineWidth = stroke.lineWidth;
-        strokeCopy.color = stroke.color;
-        strokeCopy.stroke = [];
-        for (var k = 0; k < stroke.stroke.length; k++) {
-          strokeCopy.stroke.push(stroke.stroke[k]);
+      var strokeCopy = {};
+      strokeCopy.dish_id = stroke.dish_id;
+      strokeCopy.swatchCoord_x = stroke.swatchCoord_x;
+      strokeCopy.swatchCoord_y = stroke.swatchCoord_y;
+      strokeCopy.lineWidth = stroke.lineWidth;
+      strokeCopy.color = stroke.color;
+      strokeCopy.stroke = [];
+      for (var k = 0; k < stroke.stroke.length; k++) {
+        strokeCopy.stroke.push(stroke.stroke[k]);
+      }
+      if (stroke.dish_id !== null && stroke.dish_id === id) {
+        if (stroke.swatchCoord_x === null) {
+          strokeCopy.color = dish.blobs[0].color;
+        } else {
+          for (var j = 0; j < dish.swatchCoords_x.length; j++) {
+            if (stroke.swatchCoord_x === dish.swatchCoords_x[j]) {
+              strokeCopy.color = dish.swatches[j];
+              break;
+            }
+          }
         }
-        if (stroke.dish_id !== null && stroke.dish_id === id) {
+      } else {
+        if (stroke.dish_id !== null && dish.parent !== null && stroke.dish_id === dish.parent.id) {
           if (stroke.swatchCoord_x === null) {
-            strokeCopy.color = dish.blobs[0].color;
-            // stroke.color = dish.blobs[0].color;
+            strokeCopy.color = dish.parent.blobs[0].color;
           } else {
-            for (var j = 0; j < dish.swatchCoords_x.length; j++) {
-              if (stroke.swatchCoord_x === dish.swatchCoords_x[j]) {
-                strokeCopy.color = dish.swatches[j];
-                // stroke.color = dish.swatches[j];
+            for (var m = 0; m < dish.parent.swatchCoords_x.length; m++) {
+              if (stroke.swatchCoord_x === dish.parent.swatchCoords_x[m]) {
+                strokeCopy.color = dish.parent.swatches[m];
                 break;
               }
             }
           }
-
-        } else {
-        //   console.log("changing parent dish");
-        // // for (var l = 0; l < parentDishes.length; l++) {
-        //   console.log("looping through parent dishes");
-        //   console.log("stroke dish id: " + stroke.dish_id);
-          // console.log("parent dish id: " + dish.parent.id);
-          if (stroke.dish_id !== null && dish.parent !== null && stroke.dish_id === dish.parent.id) {
-            // console.log("changing parent dish");
-
-            if (stroke.swatchCoord_x === null) {
-              // console.log("just using orig color");
-              strokeCopy.color = dish.parent.blobs[0].color;
-            } else {
-              for (var m = 0; m < dish.parent.swatchCoords_x.length; m++) {
-                if (stroke.swatchCoord_x === dish.parent.swatchCoords_x[m]) {
-                  strokeCopy.color = dish.parent.swatches[m];
-                  // console.log("strokecolor: ");
-                  // console.log(strokeCopy.color);
-                  break;
-                }
-              }
-            }
-          }
-        // }
+        }
       }
-
-        strokesCopy.push(strokeCopy);
-
+      strokesCopy.push(strokeCopy);
     }
   }
-  // for (var i = 0; i < strokes.length; i++) {
-  //   if (strokes[i].dish_id !== null) {
-  //     // copy over all strokes from previous state and update
-  //     var strokeCopy = {};
-  //     strokeCopy.dish_id = strokes[i].dish_id;
-  //     strokeCopy.swatchCoord_x = strokes[i].swatchCoord_x;
-  //     strokeCopy.swatchCoord_y = strokes[i].swatchCoord_y;
-  //     strokeCopy.lineWidth = strokes[i].lineWidth;
-  //     strokeCopy.color = strokes[i].color;
-  //     strokeCopy.stroke = [];
-  //     for (var k = 0; k < strokes[i].stroke.length; k++) {
-  //       strokeCopy.stroke.push(strokes[i].stroke[k]);
-  //     }
-  //     if (strokes[i].dish_id === id) {
-  //       if (strokes[i].swatchCoord_x === null) {
-  //         strokeCopy.color = dish.blobs[0].color;
-  //         strokes[i].color = dish.blobs[0].color;
-  //       } else {
-  //         for (var j = 0; j < dish.swatchCoords_x.length; j++) {
-  //           if (strokes[i].swatchCoord_x === dish.swatchCoords_x[j]) {
-  //             strokeCopy.color = dish.swatches[j];
-  //             strokes[i].color = dish.swatches[j];
-  //             break;
-  //           }
-  //         }
-  //       }
-  //     }
-  //     strokesCopy.push(strokeCopy);
-  //   }
-  // }
   drawingHistory.push(strokesCopy);
   redraw();
 }
 
+/*********** WebGL stuff *****************/
 var Loader = (function (modules) { // the webpack bootstrap
   // the module cache
   var installedModules = {};
@@ -747,11 +671,7 @@ var Loader = (function (modules) { // the webpack bootstrap
         this.renderer.render(this);
         this._initEventHandle();
 
-        // initialize a blob to palette
-        // var blob = new blob_obj.Blob(0,0, new color_obj.Color(255, 0, 255));
-        // this.blobs.push(blob);
-
-        // initialize a swatch coord to canvas
+        // Initialize swatch marker
         this.coord = document.createElement('div');
         this.coord.id = 'coord';
         var style = "\n border-radius: 50%;\n border-style: solid; \n border-color: rgba(255,255,255,0.9); \n border-width: thin; \n width: 11px;\n height: 11px;\n margin-left: -5px;\n margin-top: -5px;\n cursor: crosshair; \n position: absolute; \n left: " + 0 + "px;\n top: " + 0 + "px;\n";
@@ -765,7 +685,6 @@ var Loader = (function (modules) { // the webpack bootstrap
         var _this = this;
         for (var i = 0; i < _this.blobs.length; i++) {
           var curr_blob = _this.blobs[i];
-
           if (Math.abs(curr_blob.x - x) < 160 && Math.abs(curr_blob.y - y) < 160
             && !_this.isSameBlob(curr_blob, blob)) {
             return curr_blob;
@@ -779,8 +698,7 @@ var Loader = (function (modules) { // the webpack bootstrap
       }
 
       Palette.prototype.isSameColor = function (color1, color2) {
-        return (color1.r === color2.r && color1.g === color2.g && color1.b
-          === color2.b);
+        return (color1.r === color2.r && color1.g === color2.g && color1.b === color2.b);
       }
 
       Palette.prototype.isDifferent = function (blob, dish) {
@@ -792,6 +710,7 @@ var Loader = (function (modules) { // the webpack bootstrap
           var other_r = dish.blobs[i].color.r;
           var other_g = dish.blobs[i].color.g;
           var other_b = dish.blobs[i].color.b;
+          // if blob is the same color or is within the same range return not different
           if (_this.isSameColor(dish.blobs[i].color, blob.color) ||
             (Math.abs(this_r - other_r) < 100 && Math.abs(this_g - other_g) < 100 &&
             Math.abs(this_b - other_b) < 100)) {
@@ -818,9 +737,7 @@ var Loader = (function (modules) { // the webpack bootstrap
         blob.marker = marker;
       }
 
-      /*
-      ** Increment dish id of all blobs
-      */
+      // Increment dish id of all blobs in mixing dish
       Palette.prototype.addToPrevDish = function (blobs, new_id) {
         var _this = this;
         var updated_blobs = [];
@@ -840,9 +757,7 @@ var Loader = (function (modules) { // the webpack bootstrap
         return updated_blobs;
       }
 
-      /*
-      ** Create new dish without blob
-      */
+      // Create a new dish without the given blob
       Palette.prototype.subFromPrevDish = function (blob) {
         var _this = this;
         var prevDish_id = blob.dish_id;
@@ -893,27 +808,18 @@ var Loader = (function (modules) { // the webpack bootstrap
           return dish;
         }
 
-        /*
-        ** Add swatch coordinates to palette after selecting from swatch history
-        */
         Palette.prototype.moveSwatchMarker = function (x, y) {
           var _this = this;
           var newX = x - 6;
           var newY = y - 4;
-          // var newX = x - newLeft - 6;
-          // var newY = y - newTop - 4;
           _this.coord.style.left = newX + 'px';
           _this.coord.style.top = newY + 'px';
           coord_x = x;
           coord_y = y;
         }
-        /*
-        ** Handles cases for dropping blobs onto the palette
-        */
-        Palette.prototype.addBlob = function (event, color) { // event.clientX - newLeft
-          // color.r = Math.floor(color.r);
-          // color.g = Math.floor(color.g);
-          // color.b = Math.floor(color.b);
+
+        // add blobs to the palette
+        Palette.prototype.addBlob = function (event, color) {
           interactedWithPalette = true;
           var _this = this;
           var x = event.clientX;
@@ -936,7 +842,6 @@ var Loader = (function (modules) { // the webpack bootstrap
             var nearestBlob = _this.getNearestBlob((x - newLeft) * this.pixelRatio - 15,
               this.height - (y - newTop) * this.pixelRatio, blob);
               if (nearestBlob !== null) {
-                // console.log("nearestDishId: " + nearestBlob.dish_id);
                 var nearestDish = _this.dishes[nearestBlob.dish_id];
                 if (_this.isDifferent(blob, nearestDish)) {
                   var updated_blobs = _this.addToPrevDish(nearestDish.blobs, ++id);
@@ -944,9 +849,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                   blob.dish_id = id;
                   blob.blob_id = ++blob_id;
                   updated_blobs.push(blob);
-                  var newDish = new dish_obj.Dish(id, nearestDish, updated_blobs,
-                    [], []);
-                    nearestDish.child = newDish;
+                  var newDish = new dish_obj.Dish(id, nearestDish, updated_blobs, [], []);
                     newDish.swatches = [];
                     newDish.swatches.push(new color_obj.Color(curr_r, curr_g, curr_b));
                     newDish.swatchCoords_x.push((pixelInputToCanvasCoord(event, pCanvas).x)*2);
@@ -992,15 +895,11 @@ var Loader = (function (modules) { // the webpack bootstrap
                 curr_swatchCoord_y = (pixelInputToCanvasCoord(event, pCanvas).y)*2;
                 _this.blobs.push(blob);
                 curr_drawing_id = id;
-                // console.log(_this.blobs);
-                console.log(_this.dishes);
               };
 
 
-            /*
-            ** Handles cases for dragging existing blobs around the palette
-            */
-            Palette.prototype.addBlobToDish = function (event, blob) {
+            // Handles logic for dragging blobs around the palette
+            Palette.prototype.dragBlob = function (event, blob) {
               interactedWithPalette = true;
               var _this = this;
               var x = event.clientX;
@@ -1048,7 +947,6 @@ var Loader = (function (modules) { // the webpack bootstrap
                         [], []);
                         newDish.swatches = [];
                         newDish.swatches.push(blob.color.r, blob.color.g, blob.color.b);
-                        nearestDish.child = newDish;
                         newDish.events = nearestDish.events;
                         newDish.events.push(event);
                         newDish.topBuffer = nearestDish.topBuffer;
@@ -1087,8 +985,6 @@ var Loader = (function (modules) { // the webpack bootstrap
                       _this.updateThisBlobs(new_blob);
                     }
                   }
-                  // console.log(_this.blobs);
-                  // console.log(_this.dishes);
                 }
 
                 Palette.prototype.blobColorsMatch = function (blobs1, blobs2) {
@@ -1132,17 +1028,6 @@ var Loader = (function (modules) { // the webpack bootstrap
 
                 Palette.prototype.addDishToPalette = function(id) {
                   var _this = this;
-                  // for (var i = 0; i < _this.blobs.length; i++) {
-                  //     // delete marker
-                  //     if (pCanvas.parentNode) {
-                  //       pCanvas.parentNode.removeChild(_this.blobs[i].marker);
-                  //     }
-                  //     // delete blob
-                  //     // _this.blobs.splice(i, 1);
-                  //
-                  // }
-                  // _this.blobs = []; // clear palette
-                  // find dish corresponding to dish_id and add to palette
                   var dish = _this.dishes[id];
                   var blobs = dish.blobs;
                   for (var i = 0; i < blobs.length; i++) {
@@ -1150,7 +1035,6 @@ var Loader = (function (modules) { // the webpack bootstrap
                     var x = dish.blobCoords_x[i];
                     var y = dish.blobCoords_y[i];
                     var e = dish.events[i];
-                    // _this.addBlob(x + newLeft, y + newTop, blob.color);
                     _this.addBlob(e, blob.color);
 
                   }
@@ -1191,7 +1075,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                   return null;
                 }
 
-                // FUNCTION: Move a dish by dragging its marker
+                // Move a blob by dragging its marker
                 Palette.prototype.moveBlob = function (blob, x, y) {
                   var _this = this;
                   x -= newLeft;
@@ -1219,51 +1103,17 @@ var Loader = (function (modules) { // the webpack bootstrap
                   }
                   if (dish.parent !== null) {
                     for (var i = 0; i < dish.parent.swatchCoords_x.length; i++) {
-                         var x = dish.parent.swatchCoords_x[i];
-                         var y = dish.parent.swatchCoords_y[i];
-                         var pixels = new Uint8Array(4);
-                         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
-                         if (typeof dish.parent.swatches[i] !== 'undefined') {
-                           dish.parent.swatches[i].r = Math.floor(pixels[0]);
-                           dish.parent.swatches[i].g = Math.floor(pixels[1]);
-                           dish.parent.swatches[i].b = Math.floor(pixels[2]);
-                         }
-                       }
+                      var x = dish.parent.swatchCoords_x[i];
+                      var y = dish.parent.swatchCoords_y[i];
+                      var pixels = new Uint8Array(4);
+                      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
+                      if (typeof dish.parent.swatches[i] !== 'undefined') {
+                        dish.parent.swatches[i].r = Math.floor(pixels[0]);
+                        dish.parent.swatches[i].g = Math.floor(pixels[1]);
+                        dish.parent.swatches[i].b = Math.floor(pixels[2]);
+                      }
+                    }
                   }
-
-                  // while (curr_dish.parent !== null) {
-                  //   var parentDish = curr_dish.parent;
-                  //   // check if dish is still in Palette
-                  //   var hasDish = true;
-                  //   var parentBlobs = parentDish.blobs;
-                  //   for (var i = 0; i < parentBlobs.length; i++) {
-                  //     var curr_blob = parentBlobs[i];
-                  //     for (var j = 0; j < _this.blobs.length; j++) {
-                  //       if (curr_blob.x === _this.blobs[j].x && curr_blob.y ===
-                  //       _this.blobs[j].y) {
-                  //         if (curr_blob.color !== _this.blobs[j].color) {
-                  //           hasDish = false;
-                  //           break;
-                  //         }
-                  //       }
-                  //     }
-                  //   }
-                  //   if (hasDish) {
-                  //     // recursive method to update all child dishes
-                  //     for (var i = 0; i < parentDish.swatchCoords_x.length; i++) {
-                  //       var x = parentDish.swatchCoords_x[i];
-                  //       var y = parentDish.swatchCoords_y[i];
-                  //       var pixels = new Uint8Array(4);
-                  //       gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
-                  //       if (typeof parentDish.swatches[i] !== 'undefined') {
-                  //         parentDish.swatches[i].r = pixels[0];
-                  //         parentDish.swatches[i].g = pixels[1];
-                  //         parentDish.swatches[i].b = pixels[2];
-                  //       }
-                  //     }
-                  //     curr_dish = parentDish;
-                  //   }
-                  // }
                 }
 
                 Palette.prototype.deleteBlob = function (blob) {
@@ -1281,7 +1131,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                   }
                 }
 
-                // FUNCTION: Initialize all event handlers in palette object
+                // Set palette mouse events
                 Palette.prototype._initEventHandle = function () {
                   var _this = this;
                   _this.isMouseDown = false;
@@ -1313,7 +1163,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                       } else if (_this.isMouseDown && useDropper) {
                         interactedWithPalette = true;
                         event.preventDefault();
-                        // set currentColor swatch to color under mouse over
+                        // set current color square to color under mouse over
                         var point = pixelInputToCanvasCoord(event, pCanvas);
                         var pixels = new Uint8Array(4);
                         gl.readPixels(point.x*2, point.y*2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
@@ -1332,7 +1182,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                         _this.moveSwatchMarker(event.clientX - newLeft, event.clientY - newTop + 3.5);
                       } else if (movedBlob) {
                         movedBlob = false;
-                        _this.addBlobToDish(event, _this.activeBlob);
+                        _this.dragBlob(event, _this.activeBlob);
                         _this.moveSwatchMarker(event.clientX - newLeft, event.clientY - newTop + 3.5);
 
                       } else if (_this.isMouseDown && !_this.isMouseMoved && colorChange) {
@@ -1371,14 +1221,14 @@ var Loader = (function (modules) { // the webpack bootstrap
                         var point = pixelInputToCanvasCoord(event, pCanvas);
                         var pixels = new Uint8Array(4);
                         gl.readPixels(point.x*2, point.y*2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels); // (0, 0 is in bottom left corner)
-                        // set currentColor swatch to color under mouse over
+                        // set current color square to color under mouse over
                         document.getElementById("currentColor").style.backgroundColor = 'rgb(' + pixels[0] + ',' + pixels[1] + ',' + pixels[2] + ')';
 
                         curr_r = pixels[0];
                         curr_g = pixels[1];
                         curr_b = pixels[2];
 
-                        // FIND WHICH DISH YOU CLICKED IN AND SET CURR_DRAWING_ID TO DISH_ID
+                        // Find which dish you clicked in and set curr_drawing_id to dish_id
                         curr_drawing_id = _this.retrieveDish(point.x, point.y);
                         if (curr_drawing_id !== null) {
                           var dish = _this.dishes[curr_drawing_id];
@@ -1387,8 +1237,6 @@ var Loader = (function (modules) { // the webpack bootstrap
                           dish.swatches.push(new color_obj.Color(curr_r, curr_g, curr_b));
                           curr_swatchCoord_x = point.x*2;
                           curr_swatchCoord_y = point.y*2;
-
-                          // console.log(_this.dishes);
                         }
                       }
                       _this.isMouseDown = false;
@@ -1401,7 +1249,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                 exports.Palette = Palette;
               }),
 
-              /* Module 1: Renderer */
+              /******* Renderer *****/
               (function (module, exports, __webpack_require__) {
                 "use strict";
                 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1415,10 +1263,8 @@ var Loader = (function (modules) { // the webpack bootstrap
                     this._initShaders();
                     this._initBuffers();
                   }
-                  // FUNCTION: Render a new frame
                   Renderer.prototype.render = function (palette) {
                     if (typeof this.beforeRender === 'function') {
-                      // Callback
                       this.beforeRender();
                     }
                     gl = this.gl;
@@ -1428,13 +1274,11 @@ var Loader = (function (modules) { // the webpack bootstrap
                     gl.useProgram(this._shaderProgram);
                     if (palette.blobs.length !== this.numBlobs
                       || palette.blobs.some(function (blob) { return blob.isDirty; })) {
-                        // Rebuild shader when dish number changes
                         this.numBlobs = palette.blobs.length;
                         this._initShaders();
                         this._initBlobBuffers(palette.blobs);
                         palette.blobs.forEach(function (blob) { return blob.isDirty = false; });
                       }
-                      // Window width and height as uniform
                       var uW = gl.getUniformLocation(this._shaderProgram, 'uW');
                       if (uW) {
                         gl.uniform1f(uW, this.width);
@@ -1448,10 +1292,8 @@ var Loader = (function (modules) { // the webpack bootstrap
                         gl.bindBuffer(gl.ARRAY_BUFFER, this._positionBuffer);
                       }
                       gl.vertexAttribPointer(this._positionAttr, 2, gl.FLOAT, false, 0, 0);
-                      // Draw a rectangle for screen
                       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
                       if (typeof this.afterRender === 'function') {
-                        // Callback
                         this.afterRender();
                       }
                     };
@@ -1491,8 +1333,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                       if (!vShader) {
                         return;
                       }
-                      // Algorithm to mix colors based on influences (variant
-                      //of metaball function)
+                      // Algorithm to mix colors based on influences (variant of the metaball function)
                       var fragment = "\n precision highp float;\n varying float vW;\n varying float vH;\n varying float vBlobCnt;\n" + vBlobStr + "\n" + vBlobColorStr + "\n\n void main(void) {\n const int blobCnt = " + this.numBlobs + ";\n\n if (blobCnt == 0) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n return;\n }\n\n float r = 240.0;\n float b2 = 0.25;\n float b4 = b2 * b2;\n float b6 = b4 * b2;\n\n float influenceSum = 0.0;\n vec3 colors = vec3(0.0, 0.0, 0.0);\n for (int i = 0; i < blobCnt; ++i) {\n vec2 pos = vBlobPos[i];\n float dx = pos.x - float(gl_FragCoord.x);\n float dy = pos.y - float(gl_FragCoord.y);\n float d2 = (dx * dx + dy * dy) / r / r;\n\n if (d2 <= b2) {\n float d4 = d2 * d2;\n float influence = 1.0 - (4.0 * d4 * d2 / b6 - 17.0 * d4\n / b4 + 22.0 * d2 / b2) / 9.0;\n\n if (influence < 0.001) {\n continue;\n }\n\n colors = colors + vBlobColor[i] * influence;\n\n influenceSum += influence;\n}\n}\n\n if (influenceSum < 0.2) {\n gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n }\n else {\n gl_FragColor = vec4(colors / influenceSum, 1.0);\n }\n }\n";
 
                       var fShader = this._getShader(fragment, gl.FRAGMENT_SHADER);
@@ -1558,8 +1399,9 @@ var Loader = (function (modules) { // the webpack bootstrap
                     return Renderer;
                   }());
                   exports.Renderer = Renderer;
-                }), /* end of 1 *
-                /* Module 2: Color */
+                }),
+
+                /***** Color ****/
                 (function(module, exports, __webpack_require__) {
                   "use strict";
                   Object.defineProperty(exports, "__esModule", { value: true });
@@ -1573,10 +1415,11 @@ var Loader = (function (modules) { // the webpack bootstrap
                       return [this.r, this.g, this.b];
                     };
                     return Color;
-                  }()); // end of color object
+                  }());
                   exports.Color = Color;
                 }),
-                /* Module 3: Blob */
+
+                /**** Blob ****/
                 (function (module, exports, __webpack_require__) {
                   "use strict";
                   Object.defineProperty(exports, '__esModule', { value: true });
@@ -1588,7 +1431,6 @@ var Loader = (function (modules) { // the webpack bootstrap
                       this.isDirty = true;
                       this.wasGrouped = false;
                     }
-                    // FUNCTION: Move a blob given the (x, y) coord
                     Blob.prototype.move = function (x, y) {
                       this.x = x;
                       this.y = y;
@@ -1603,7 +1445,7 @@ var Loader = (function (modules) { // the webpack bootstrap
                   Object.defineProperty(exports, '__esModule', { value: true });
                   var Dish = (function () {
                     // A dish consists of one or more blobs
-                    // Each dish holds a reference to its parent dish (if any) and an array of blobs
+                    // Each dish holds its id, a reference to its parent dish (if any), and an array of blobs
                     function Dish (id, parent, blobs, swatchCoords_x, swatchCoords_y, topBuffer, leftBuffer) {
                       this.id = id;
                       this.parent = parent;
@@ -1616,13 +1458,11 @@ var Loader = (function (modules) { // the webpack bootstrap
                       this.topBuffer = topBuffer;
                       this.leftBuffer = leftBuffer;
                       this.swatches = [];
-                      this.child = null; // figure this out later, change of color in parent propagates to same color in all children
                     }
                     return Dish;
                   }());
                   exports.Dish = Dish;
                 })
-                // END OF MAIN CODE
               ]);
 
               var mixingCanvas = document.getElementById('mixing');
