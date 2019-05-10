@@ -10,9 +10,7 @@ p {
 }
 
 #myCanvas {
-	/* float: left; */
 	background-color: white;
-	/* display: inline-block; */
 	height: 100%;
 	width: 100%;
 	float: right;
@@ -55,7 +53,6 @@ button:focus {
 	left: 0px;
 	z-index: 11;
 	position: fixed;
-	/* background-color: red; */
 }
 
 #color {
@@ -70,13 +67,11 @@ button:focus {
 	position: absolute;
 	width: 40px;
 	background-color: rgba(0,0,0,0.1);
-
 }
 
 #mydiv {
   position: absolute;
   z-index: 9;
-  /* border: 3px 1px 3px 1px solid rgba(0,0,0,0.2); */
   text-align: center;
 	width: 25%;
 	height: 50%;
@@ -103,7 +98,6 @@ input[type=range][orient=vertical]
     -webkit-appearance: slider-vertical; /* WebKit */
     width: 3px;
     height: 150px;
-    /* padding: 0 5px; */
 		border-radius: 5px;
 	  background: #d3d3d3;
 	  outline: none;
@@ -235,11 +229,9 @@ input[type=range][orient=vertical]
 }
 
 .btn-drawing {
-	/* left: 20px; */
 	padding: 5px;
 	margin: 3px;
 	z-index: 10;
-	/* position: fixed; */
 	cursor: pointer;
 	border-style: none;
 	background-color: white;
@@ -248,66 +240,6 @@ input[type=range][orient=vertical]
 
 #addDish {
 	margin-top: 45px;
-}
-
-#red-swatch {
-	background-color: red;
-}
-
-#green-swatch {
-	background-color: #33f907;
-}
-
-#blue-swatch {
-	background-color: #00bfff;
-}
-
-#darkblue-swatch {
-	background-color: #0046d3;
-}
-
-#magenta-swatch {
-	background-color: #f402c8;
-}
-
-#orange-swatch {
-	background-color: #ff9000;
-}
-
-#lavender-swatch {
-	background-color: rgb(205, 132, 224);
-}
-
-#forestgreen-swatch {
-	background-color: #145905;
-}
-
-#grey-swatch {
-	background-color: #777777;
-}
-
-#brown-swatch {
-	background-color: #7c4a09;
-}
-
-#yellow-swatch {
-	background-color: yellow;
-}
-
-#purple-swatch {
-	background-color: #8614c9;
-}
-
-#tan-swatch {
-	background-color: #ceb18e;
-}
-
-#black-swatch {
-	background-color: black;
-}
-
-#white-swatch {
-	background-color: white;
 }
 
 #mydivheader {
@@ -320,8 +252,3 @@ input[type=range][orient=vertical]
 	left: 25px;
 	border-radius: 20%;
 }
-
-/* #color-wheel {
-	width: 100%;
-	height: 100%;
-} */
